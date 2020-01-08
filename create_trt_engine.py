@@ -18,6 +18,12 @@ def build_engine_onnx(model_file , flag_int8 = 0):
 		# Load the Onnx model and parse it in order to populate the TensorRT network.
 		with open(model_file, 'rb') as model:
 			parser.parse(model.read())
+			
+		last_layer = network.get_layer(network.num_layers - 1)
+		# Check if last layer recognizes it's output
+		if not last_layer.get_output(0):
+		    # If not, then mark the output using TensorRT API
+		    network.mark_output(last_layer.get_output(0))
 
 		if flag_int8:
 			builder.int8_mode = True
